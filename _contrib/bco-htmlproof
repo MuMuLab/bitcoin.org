@@ -20,7 +20,7 @@ HTML::Proofer.new(
         ## Travis CI failures. TODO: take an argument to optionally
         ## enable external link checking as part of the Makefile
         ## manual checks
-        :disable_external => true,
+        :disable_external => false,
 
         ## Check whether HTML is well-formed
         :check_html => true,
@@ -42,14 +42,17 @@ HTML::Proofer.new(
           /(css|png|rss|pdf|jpg|asc|xml)$/ => '\1$',
 
           ## Append .html to end of most URLs so proofer can find the local files
-          /^(
+          /^(https?:\/\/bitcoin.org\/
            [^#]+   ## Don't match URL containing a hash, we'll deal with them separately
            [^\/$]  ## Don't match URLs ending in a slash or $
           )$/x => '\1.html',
 
+          ## Match relative urls
+          /^(?!https?:\/\/)(.*[^\/$])$/x => '\1.html',
+
           ## Insert .html between page and anchor, but only if there's a
           ## page name
-          /^(.+)(#.+)/ => '\1.html\2',
+          /^https?:\/\/bitcoin.org\/(.+)(#.+)/ => '\1.html\2',
 
           /\/(.html#.+)/ => '\1',
 
@@ -61,6 +64,6 @@ HTML::Proofer.new(
         ## for settings specific to particular systems, but for now I
         ## think 2 is a good setting for Travis CI ("1.5 processors")
         ## and me (usually 2 processors)
-        :parallel => { :in_processes => 2 }
+        :parallel => { :in_processes => 10 }
     }
 ).run
